@@ -1,43 +1,66 @@
 // src/App.js
-import React, { useState } from 'react';
-import FeedbackForm from './components/FeedbackForm';
-import OverallRating from './components/OverallRating';
-import AllFeedbacks from './components/AllFeedbacks';
+import React, { useState, useEffect } from 'react';
+import AddPasswordForm from './components/AddPasswordForm';
+import SearchForm from './components/SearchForm';
+import AllPasswords from './components/AllPasswords';
 
 const App = () => {
-  const [feedbacks, setFeedbacks] = useState([]);
+  // const [feedbacks, setFeedbacks] = useState([]);
+  // const [editIndex, setEditIndex] = useState(null);
+  // const [editStatus, setEditStatus] = useState(false);
+  const [passwords, setPasswords] = useState([]);
+  const [filteredPasswords, setFilteredPasswords] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
   const [editStatus, setEditStatus] = useState(false);
 
-  const handleAddFeedback = (feedback) => {
+  useEffect(() => {
+    setFilteredPasswords(passwords);
+  }, [passwords])
+
+  const onAdd = (password) => {
     if (editIndex !== null) {
-      const updatedFeedbacks = [...feedbacks];
-      updatedFeedbacks[editIndex] = feedback;
-      setFeedbacks(updatedFeedbacks);
+      const updatedPasswords = [...passwords];
+      updatedPasswords[editIndex] = password;
+      setPasswords(updatedPasswords);
       setEditIndex(null);
     } else {
-      setFeedbacks([...feedbacks, feedback]);
+      setPasswords([...passwords, password]);
     }
   };
 
-  const handleEditFeedback = (index) => {
+  const onEdit = (index) => {
     setEditIndex(index);
     setEditStatus(true);
     console.log("working");
   };
 
-  const handleDeleteFeedback = (index) => {
-    const updatedFeedbacks = feedbacks.filter((_, i) => i !== index);
-    setFeedbacks(updatedFeedbacks);
+  const onDelete = (index) => {
+    const updatedPasswords = passwords.filter((_, i) => i !== index);
+    setPasswords(updatedPasswords);
   };
+
+  const searchPassword = (e) => {
+    let title = e.target.value;
+    title = title.trim();
+
+    const filteredPassword = passwords.filter((password) => {
+      return password.title.includes(e.target.value);
+    })
+
+    setFilteredPasswords(filteredPassword);
+  }
 
 
   return (
-    <div style={{ padding: '20px'}}>
-      <h1 style={{textAlign:'center'}}>Feedback System</h1>
-      <OverallRating feedbacks={feedbacks} />
-      <FeedbackForm onAddFeedback={handleAddFeedback} editStatus={editStatus} editFeedback={feedbacks[editIndex]}/>
-      <AllFeedbacks feedbacks={feedbacks} onEdit={handleEditFeedback} onDelete={handleDeleteFeedback} />
+    <div style={{ padding: '20px' }}>
+      <header style={{textAlign:'center'}}>
+        <h1 style={{ textAlign: 'center' }}>Password Keeper</h1>
+        <label>Total Password: {passwords.length}</label>
+        <br />
+        <SearchForm search={searchPassword} />
+      </header>
+      <AddPasswordForm onAdd={onAdd} editStatus={editStatus} editPassword={passwords[editIndex]} />
+      <AllPasswords passwords={filteredPasswords} onEdit={onEdit} onDelete={onDelete}/>
     </div>
   );
 };
